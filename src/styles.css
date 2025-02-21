@@ -1,0 +1,20 @@
+.App {
+  font-family: sans-serif;
+  /* text-align: center; */
+  display: flex;
+  height: 100%;
+  padding: 10px;
+}
+
+.sideBar {
+  max-width: 300px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 10px;
+  margin: 2px;
+}
+
+.item {
+  margin-top: 2px;
+  background-color: rgb(203, 203, 203);
+}

@@ -14,7 +14,7 @@ const optionStyle = {
 export const ContextMenu = ({
   menuVisible,
   option,
-  onAddNewFileOrFlder,
+  onAddNewFileOrFolder,
   position,
 }) => {
   if (!menuVisible) {
@@ -41,7 +41,7 @@ export const ContextMenu = ({
       {options.map((item) => (
         <div
           key={item.name}
-          onClick={() => onAddNewFileOrFlder({ ...option, ...item })}
+          onClick={() => onAddNewFileOrFolder({ ...option, ...item })}
           style={optionStyle}
         >
           {item.name}

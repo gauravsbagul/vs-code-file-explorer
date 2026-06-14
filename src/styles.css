@@ -2,12 +2,29 @@
   font-family: sans-serif;
   /* text-align: center; */
   display: flex;
-  height: 100%;
-  padding: 10px;
+  height: 100vh;
+  /* padding: 10px; */
+  background-color: rgb(16, 94, 114);
 }
 
 .sideBar {
-  max-width: 300px;
+  margin: 10px;
+  width: 200px;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid;
+  padding-right: 5px;
+  padding-top: 5px;
+  max-height: 100%;
+  overflow: scroll;
+  background-color: rgb(255, 255, 255);
+  border-color: rgb(21, 99, 114);
+  border-radius: 5px;
+  border-width: 1px;
+  overflow-x: scroll;
+}
+
+.folderWrapper {
   flex-direction: column;
   align-items: flex-start;
   padding-left: 10px;
@@ -16,5 +33,5 @@
 
 .item {
   margin-top: 2px;
-  background-color: rgb(203, 203, 203);
+  /* background-color: rgb(210, 201, 201); */
 }

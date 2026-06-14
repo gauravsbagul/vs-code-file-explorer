@@ -13,9 +13,9 @@ export const FileExplorer = ({ list, onAddNewFileOrFolder, level, setNewFileOrFo
     e.preventDefault(); // Stop the default browser context menu
 
     // Capture the click coordinates
+    setOption(option);
     setPosition({ x: e.pageX, y: e.pageY });
     setMenuVisible(true);
-    setOption(option);
   };
 
   // 2. Hide the menu whenever the user clicks anywhere else
@@ -96,14 +96,14 @@ export const FileExplorer = ({ list, onAddNewFileOrFolder, level, setNewFileOrFo
                   onClick={() =>
                     setIsExpanded((prevState) => ({
                       ...prevState,
-                      [item.name]: true,
+                      [item.name]: !prevState[item.name],
                     }))
                   }
                   style={{ flexDirection: "row" }}
                   onContextMenu={(e) =>{
                     setIsExpanded((prevState) => ({
                       ...prevState,
-                      [item.name]: !prevState[item.name],
+                      [item.name]: true,
                     }))
                     handleContextMenu(e, {
                       index,

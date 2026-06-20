@@ -1,4 +1,6 @@
-export const filesAndFolders = [
+import type { ExplorerNode } from "./types";
+
+export const filesAndFolders: ExplorerNode[] = [
   {
     name: "my-app",
     isFile: false,

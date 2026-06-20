@@ -1,37 +1,78 @@
-.App {
-  font-family: sans-serif;
-  /* text-align: center; */
-  display: flex;
-  height: 100vh;
-  /* padding: 10px; */
-  background-color: #105e72;
+@import "tailwindcss";
+
+@theme inline {
+  /* VS Code Dark+ exact hex values */
+  --color-vsc-editor-bg:     #1e1e1e;
+  --color-vsc-sidebar-bg:    #252526;
+  --color-vsc-tab-inactive:  #2d2d2d;
+  --color-vsc-hover:         #2a2d2e;
+  --color-vsc-active:        #37373d;
+  --color-vsc-border:        #3c3c3c;
+  --color-vsc-input-bg:      #3c3c3c;
+  --color-vsc-input-border:  #007acc;
+
+  --color-vsc-fg:            #cccccc;
+  --color-vsc-fg-bright:     #ffffff;
+  --color-vsc-fg-muted:      #8c8c8c;
+  --color-vsc-fg-header:     #bbbbbb;
+
+  --color-vsc-accent:        #007acc;
+  --color-vsc-accent-dim:    #264f78;
+
+  /* File type icon colors (VS Code exact) */
+  --color-icon-ts:    #3178c6;
+  --color-icon-js:    #e8c547;
+  --color-icon-json:  #cbcb41;
+  --color-icon-css:   #519aba;
+  --color-icon-md:    #519aba;
+  --color-icon-html:  #e34c26;
+  --color-icon-file:  #c5c5c5;
+  --color-icon-folder:#c09553;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
 }
 
-.sideBar {
-  margin: 10px;
-  width: 200px;
-  flex-direction: column;
-  align-items: flex-start;
-  border: 1px solid;
-  padding-right: 5px;
-  padding-top: 5px;
-  max-height: 100%;
-  overflow: scroll;
-  background-color: rgb(255, 255, 255);
-  border-color: #156372;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: #1e1e1e;
+  color: #cccccc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* VS Code scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(121, 121, 121, 0.4);
+  border: 2px solid transparent;
+  background-clip: padding-box;
   border-radius: 5px;
-  border-width: 1px;
-  overflow-x: scroll;
 }
-
-.folderWrapper {
-  flex-direction: column;
-  align-items: flex-start;
-  padding-left: 10px;
-  margin: 2px;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.7);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 5px;
 }
-
-.item {
-  margin-top: 2px;
-  /* background-color: rgb(210, 201, 201); */
+::-webkit-scrollbar-corner {
+  background: transparent;
 }

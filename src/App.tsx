@@ -4,19 +4,20 @@ import { filesAndFolders } from "./data";
 import "./styles.css";
 import type { ExplorerAction, ExplorerNode } from "./types";
 import { FileCode, FileJson, FileText, File, X } from "lucide-react";
+import { NEW_FILE, NEW_FOLDER } from "./constant";
 
 export const VSC = {
-  editorBg:    "#1e1e1e",
-  sidebarBg:   "#252526",
+  editorBg: "#1e1e1e",
+  sidebarBg: "#252526",
   tabInactive: "#2d2d2d",
-  border:      "#3c3c3c",
-  fg:          "#cccccc",
-  fgBright:    "#ffffff",
-  fgMuted:     "#8c8c8c",
-  fgHeader:    "#bbbbbb",
-  accent:      "#007acc",
-  hover:       "#2a2d2e",
-  active:      "#37373d",
+  border: "#3c3c3c",
+  fg: "#cccccc",
+  fgBright: "#ffffff",
+  fgMuted: "#8c8c8c",
+  fgHeader: "#bbbbbb",
+  accent: "#007acc",
+  hover: "#2a2d2e",
+  active: "#37373d",
 } as const;
 
 type VscColors = typeof VSC;
@@ -38,18 +39,28 @@ const addObjectAtDepth = ({
   return list;
 };
 
-const replaceObjectAtDepth = ({
-  list, targetDepth, newObj, currentDepth = 0,
+const replaceObject = ({
+  list, updatedObj,
 }: {
-  list: ExplorerNode[]; targetDepth: number; newObj: ExplorerNode; currentDepth?: number;
+  list: ExplorerNode[]; updatedObj: ExplorerNode;
 }): ExplorerNode[] => {
   if (!Array.isArray(list)) return list;
   return list.map((node) => {
-    if (currentDepth === targetDepth) return node.name === "New file" || node.name === "New folder" ? newObj : node;
-    if (isFolderNode(node)) return { ...node, filesAndFolders: replaceObjectAtDepth({ list: node.filesAndFolders, targetDepth, newObj, currentDepth: currentDepth + 1 }) };
+    if (updatedObj.id === node.id) return {...updatedObj};
+    if (isFolderNode(node)) return { ...node, filesAndFolders: replaceObject({ list: node.filesAndFolders, updatedObj, }) };
     return node;
   });
 };
+
+
+
+const deleteObject = (list: ExplorerNode[], id: string): ExplorerNode[] => {
+      return list.filter((node) => {
+        if (node.id === id) return false;
+        if (isFolderNode(node)) node.filesAndFolders = deleteObject(node.filesAndFolders, id);
+        return true;
+      });
+    };
 
 export function getFileIcon(name: string, size = 16) {
   const ext = name.split(".").pop()?.toLowerCase();
@@ -57,10 +68,10 @@ export function getFileIcon(name: string, size = 16) {
   switch (ext) {
     case "ts": case "tsx": return <FileCode style={{ ...s, color: "#3178c6" }} />;
     case "js": case "jsx": return <FileCode style={{ ...s, color: "#e8c547" }} />;
-    case "json":            return <FileJson style={{ ...s, color: "#cbcb41" }} />;
+    case "json": return <FileJson style={{ ...s, color: "#cbcb41" }} />;
     case "css": case "scss": return <File style={{ ...s, color: "#519aba" }} />;
-    case "md": case "mdx":  return <FileText style={{ ...s, color: "#519aba" }} />;
-    default:                return <File style={{ ...s, color: "#c5c5c5" }} />;
+    case "md": case "mdx": return <FileText style={{ ...s, color: "#519aba" }} />;
+    default: return <File style={{ ...s, color: "#c5c5c5" }} />;
   }
 }
 
@@ -73,21 +84,29 @@ export default function App() {
 
   const onAddNewFileOrFolder = (option: ExplorerAction) => {
     const { parentFolder, name = "", depth, isFile } = option;
-    const tempList = JSON.parse(JSON.stringify(list)) as ExplorerNode[];
+    const tempList = structuredClone(list) as ExplorerNode[];
     setList(addObjectAtDepth({
       list: tempList, targetDepth: depth, parentFolder,
-      newObj: { name: `New ${name}`, ...(isFile ? { isFile: true as const } : { filesAndFolders: [], isFile: false as const }) },
+      newObj: { name: `New ${name}`, ...(isFile ? { isFile: true as const, id: self.crypto.randomUUID() } : { filesAndFolders: [], isFile: false as const, id: self.crypto.randomUUID() }) },
     }));
   };
 
-  const setNewFileOrFolderName = (option: ExplorerAction) => {
-    const { name = "", depth, isFile } = option;
-    const tempList = JSON.parse(JSON.stringify(list)) as ExplorerNode[];
-    setList(replaceObjectAtDepth({
-      list: tempList, targetDepth: depth,
-      newObj: { name, ...(isFile ? { isFile: true as const } : { filesAndFolders: [], isFile: false as const }) },
+  const onNewFileOrFolderName = (option: ExplorerAction) => {
+     const { name = "", id , item} = option;
+    const tempList = structuredClone(list) as ExplorerNode[];
+    setList(replaceObject({
+      list: tempList,
+      updatedObj: {...item, name, id, ...(option.currentName && { currentName: option.currentName })} as ExplorerNode,
     }));
   };
+
+  const onDeleteFileOrFolder = (option: ExplorerAction) => {
+    const { id, name } = option;
+    if (confirm(`Are you sure you want to delete ${name}?`)) {
+      const tempList = structuredClone(list) as ExplorerNode[];
+      setList(deleteObject(tempList, id));
+    }
+  }
 
   const onOpenFile = (file: OpenFile) => {
     setActiveFile(file.name);
@@ -107,7 +126,6 @@ export default function App() {
   return (
     <div style={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden", backgroundColor: VSC.editorBg }}>
 
-      {/* ── Sidebar ── */}
       <aside style={{
         width: 240, minWidth: 240, display: "flex", flexDirection: "column",
         backgroundColor: VSC.sidebarBg, borderRight: `1px solid ${VSC.border}`,
@@ -124,17 +142,16 @@ export default function App() {
           <FileExplorer
             list={list}
             onAddNewFileOrFolder={onAddNewFileOrFolder}
-            depth={0}
-            setNewFileOrFolderName={setNewFileOrFolderName}
+            onNewFileOrFolderName={onNewFileOrFolderName}
+            onDeleteFileOrFolder={onDeleteFileOrFolder}
+             depth={0}
             onOpenFile={onOpenFile}
             activeFile={activeFile}
           />
         </div>
       </aside>
 
-      {/* ── Editor area ── */}
       <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: VSC.editorBg }}>
-        {/* Tab bar */}
         {openFiles.length > 0 && (
           <div style={{
             height: 35, display: "flex", alignItems: "stretch", flexShrink: 0,
@@ -154,7 +171,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Content */}
         <div style={{ flex: 1, overflow: "auto" }}>
           {currentFile ? (
             <EditorPane file={currentFile} vsc={VSC} />

@@ -4,24 +4,27 @@ import { ContextMenu } from "../components/ContextMenu";
 import { getFileIcon, VSC } from "../App";
 import type { ExplorerAction, ExplorerNode } from "../types";
 import type { FocusEvent, KeyboardEvent, MouseEvent } from "react";
+import { NEW_FILE, NEW_FOLDER, RENAME } from "../constant";
 
-// VS Code tree layout constants
-const ROW_H = 22;          // px — every row is exactly 22px tall
-const BASE_INDENT = 0;     // px — no extra base offset; root starts flush
-const INDENT = 8;          // px per depth level
-const TWISTIE_W = 16;      // px — chevron zone width (also used as spacer for files)
+const showInput = [NEW_FILE, NEW_FOLDER, RENAME];
+
+const ROW_H = 22;
+const BASE_INDENT = 0;
+const INDENT = 8;
+const TWISTIE_W = 16;
 
 type FileExplorerProps = {
   list: ExplorerNode[];
   onAddNewFileOrFolder: (option: ExplorerAction) => void;
   depth: number;
-  setNewFileOrFolderName: (option: ExplorerAction) => void;
+  onNewFileOrFolderName: (option: ExplorerAction) => void;
   onOpenFile: (file: { name: string; content?: string }) => void;
   activeFile?: string | null;
+  onDeleteFileOrFolder: (option: ExplorerAction) => void;
 };
 
 export const FileExplorer = ({
-  list, onAddNewFileOrFolder, depth, setNewFileOrFolderName, onOpenFile, activeFile,
+  list, onAddNewFileOrFolder, depth, onNewFileOrFolderName, onOpenFile, activeFile, onDeleteFileOrFolder,
 }: FileExplorerProps) => {
   const [isExpanded, setIsExpanded] = useState<Record<string, boolean>>({});
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -43,10 +46,11 @@ export const FileExplorer = ({
 
   const onCreateNewFileOrFolder = (
     e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement>,
-    index: number, item: ExplorerNode, isFile: boolean
+    index: number,
+    item: ExplorerNode, isFile: boolean
   ) => {
     const name = e.currentTarget.value.trim();
-    if (name) setNewFileOrFolderName({ index, parentFolder: item.name, depth, name, isFile });
+    if (name) onNewFileOrFolderName({ index, parentFolder: item.name, depth, name, isFile, id: item.id, item });
   };
 
   const indentLeft = BASE_INDENT + INDENT * depth; // where this level's rows start
@@ -55,6 +59,8 @@ export const FileExplorer = ({
     <>
       <ContextMenu
         onAddNewFileOrFolder={onAddNewFileOrFolder}
+        onNewFileOrFolderName={onNewFileOrFolderName}
+        onDeleteFileOrFolder={onDeleteFileOrFolder}
         position={position}
         menuVisible={menuVisible}
         option={option}
@@ -67,20 +73,23 @@ export const FileExplorer = ({
         return (
           <div key={`${item.name}-${depth}-${index}`}>
             {item.isFile ? (
-              item.name === "New file" ? (
-                /* ── inline rename input (file) ── */
+              showInput.includes(item.name) ? (
                 <InlineInput
                   indentLeft={indentLeft + TWISTIE_W}
                   placeholder="filename.ts"
+                  value={item.currentName || ''}
                   icon={<File style={{ width: 16, height: 16, color: "#c5c5c5", flexShrink: 0 }} />}
                   onCommit={(e) => onCreateNewFileOrFolder(e, index, item, true)}
                 />
               ) : (
-                /* ── file row ── */
                 <TreeRow
                   isActive={isActive}
                   onClick={() => onOpenFile(item)}
                   paddingLeft={indentLeft + TWISTIE_W}
+                  onContextMenu={(e) => {
+                    setIsExpanded((p) => ({ ...p, [item.name]: true }));
+                    handleContextMenu(e, { index, parentFolder: item.name, depth: depth + 1, id: item.id, isFile: true, item });
+                  }}
                 >
                   {getFileIcon(item.name)}
                   <span style={{ marginLeft: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: isActive ? VSC.fgBright : VSC.fg }}>
@@ -90,26 +99,25 @@ export const FileExplorer = ({
               )
             ) : (
               <>
-                {item.name === "New folder" ? (
+                {showInput.includes(item.name) ? (
                   /* ── inline rename input (folder) ── */
                   <InlineInput
                     indentLeft={indentLeft + TWISTIE_W}
                     placeholder="folder name"
                     icon={<Folder style={{ width: 16, height: 16, color: "#c09553", flexShrink: 0 }} />}
                     onCommit={(e) => onCreateNewFileOrFolder(e, index, item, false)}
+                    value={item.currentName || ''}
                   />
                 ) : (
-                  /* ── folder row ── */
                   <TreeRow
                     isActive={false}
                     onClick={() => setIsExpanded((p) => ({ ...p, [item.name]: !p[item.name] }))}
                     onContextMenu={(e) => {
                       setIsExpanded((p) => ({ ...p, [item.name]: true }));
-                      handleContextMenu(e, { index, parentFolder: item.name, depth: depth + 1 });
+                      handleContextMenu(e, { index, parentFolder: item.name, depth: depth + 1, id: item.id, isFile: false, item });
                     }}
                     paddingLeft={indentLeft}
                   >
-                    {/* chevron */}
                     <span style={{ width: TWISTIE_W, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       {expanded
                         ? <ChevronDown style={{ width: 14, height: 14, color: VSC.fgMuted }} />
@@ -124,13 +132,13 @@ export const FileExplorer = ({
                   </TreeRow>
                 )}
 
-                {/* children */}
                 {!item.isFile && expanded && item.filesAndFolders?.length ? (
                   <FileExplorer
                     list={item.filesAndFolders}
                     onAddNewFileOrFolder={onAddNewFileOrFolder}
+                    onNewFileOrFolderName={onNewFileOrFolderName}
+                    onDeleteFileOrFolder={onDeleteFileOrFolder}
                     depth={depth + 1}
-                    setNewFileOrFolderName={setNewFileOrFolderName}
                     onOpenFile={onOpenFile}
                     activeFile={activeFile}
                   />
@@ -188,13 +196,21 @@ function TreeRow({
 
 /* ── Inline rename input ── */
 function InlineInput({
-  indentLeft, placeholder, icon, onCommit,
+  indentLeft, placeholder, icon, onCommit, value
 }: {
   indentLeft: number; placeholder: string;
   icon: React.ReactNode;
   onCommit: (e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement>) => void;
+  value: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = value;
+    }
+  }, [value]);
+
   return (
     <div style={{
       height: ROW_H, display: "flex", alignItems: "center", gap: 4,
@@ -206,6 +222,7 @@ function InlineInput({
         ref={inputRef}
         type="text"
         placeholder={placeholder}
+        onChange={(e) => inputRef.current && (inputRef.current.value = e.target.value)}
         autoFocus
         style={{
           flex: 1, minWidth: 0, height: 18, padding: "0 4px",

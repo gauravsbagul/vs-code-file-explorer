@@ -1,23 +1,41 @@
 import { useState } from "react";
-import { FilePlus, FolderPlus } from "lucide-react";
+import { FilePlus, FolderPlus , FileText, Trash2} from "lucide-react";
 import { VSC } from "../App";
 import type { ContextMenuOption, ExplorerAction } from "../types";
+import { NEW_FILE, NEW_FOLDER, RENAME ,DELETE} from "../constant";
 
 type ContextMenuProps = {
   menuVisible: boolean;
   option: ExplorerAction | null;
   onAddNewFileOrFolder: (option: ExplorerAction) => void;
+  onNewFileOrFolderName: (option: ExplorerAction) => void;
+  onDeleteFileOrFolder: (option: ExplorerAction) => void;
   position: { x: number; y: number };
 };
 
 const MENU_OPTIONS: ContextMenuOption[] = [
-  { name: "New File...", isFile: true },
-  { name: "New Folder...", isFile: false },
+  { name: NEW_FILE, isFile: true , icon: <FilePlus style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
+  { name: NEW_FOLDER, isFile: false, icon: <FolderPlus style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
+  { name: RENAME, icon: <FileText style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
+  { name: DELETE, icon: <Trash2 style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
 ];
 
-export const ContextMenu = ({ menuVisible, option, onAddNewFileOrFolder, position }: ContextMenuProps) => {
+export const ContextMenu = ({ menuVisible, option, onAddNewFileOrFolder, onNewFileOrFolderName, onDeleteFileOrFolder, position }: ContextMenuProps) => {
   if (!menuVisible || !option) return null;
 
+
+  const menu = option.isFile ? MENU_OPTIONS.filter((item) => item.name == RENAME || item.name == DELETE) : MENU_OPTIONS;
+
+
+  const onOptionClick = (item: ContextMenuOption) => {
+    if (item.name === RENAME) {
+      onNewFileOrFolderName({ ...option, ...item, name: RENAME, currentName: option.parentFolder });
+    } else if (item.name === DELETE) {
+      onDeleteFileOrFolder({ ...option, ...item, name: DELETE });
+    } else {
+      onAddNewFileOrFolder({ ...option, ...item, name: item.isFile ? "file" : "folder" });
+    }
+  }
   return (
     <div
       style={{
@@ -31,19 +49,20 @@ export const ContextMenu = ({ menuVisible, option, onAddNewFileOrFolder, positio
         padding: "4px 0",
       }}
     >
-      {MENU_OPTIONS.map((item) => (
+      {menu.map((item) => (
         <ContextMenuItem
           key={item.name}
           label={item.name}
+          Icon={item.icon}
           isFile={item.isFile ?? true}
-          onClick={() => onAddNewFileOrFolder({ ...option, ...item, name: item.isFile ? "file" : "folder" })}
+          onClick={()=> onOptionClick( item)}
         />
       ))}
     </div>
   );
 };
 
-function ContextMenuItem({ label, isFile, onClick }: { label: string; isFile: boolean; onClick: () => void }) {
+function ContextMenuItem({ label, isFile, onClick, Icon }: { label: string; isFile: boolean; onClick: () => void; Icon: React.ReactNode }) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
@@ -60,9 +79,7 @@ function ContextMenuItem({ label, isFile, onClick }: { label: string; isFile: bo
         userSelect: "none",
       }}
     >
-      {isFile
-        ? <FilePlus style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} />
-        : <FolderPlus style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} />}
+      {Icon}
       <span>{label}</span>
     </div>
   );

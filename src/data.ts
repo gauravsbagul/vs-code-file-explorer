@@ -1,26 +1,25 @@
 import type { ExplorerNode } from "./types";
 
 export const filesAndFolders: ExplorerNode[] = [
-  {
-    name: "my-app",
-    isFile: false,
-    filesAndFolders: [
-      {
+   {
         name: "src",
         isFile: false,
+        id: self.crypto.randomUUID(),
         filesAndFolders: [
           {
             name: "pages",
             isFile: false,
+            id: self.crypto.randomUUID(),
             filesAndFolders: [
-              { name: "index.tsx", isFile: true },
-              { name: "_app.tsx", isFile: true },
+              { name: "index.tsx", isFile: true , id: self.crypto.randomUUID()},
+              { name: "_app.tsx", isFile: true , id: self.crypto.randomUUID()},
               {
                 name: "api",
                 isFile: false,
+                id: self.crypto.randomUUID(),
                 filesAndFolders: [
-                  { name: "auth.ts", isFile: true },
-                  { name: "products.ts", isFile: true },
+                  { name: "auth.ts", isFile: true , id: self.crypto.randomUUID()},
+                  { name: "products.ts", isFile: true , id: self.crypto.randomUUID()},
                 ],
               },
             ],
@@ -28,30 +27,34 @@ export const filesAndFolders: ExplorerNode[] = [
           {
             name: "components",
             isFile: false,
+            id: self.crypto.randomUUID(),
             filesAndFolders: [
               {
                 name: "ui",
                 isFile: false,
+                id: self.crypto.randomUUID(),
                 filesAndFolders: [
-                  { name: "Button.tsx", isFile: true },
-                  { name: "Modal.tsx", isFile: true },
+                  { name: "Button.tsx", isFile: true , id: self.crypto.randomUUID()},
+                  { name: "Modal.tsx", isFile: true , id: self.crypto.randomUUID()},
                 ],
               },
               {
                 name: "layout",
                 isFile: false,
+                id: self.crypto.randomUUID(),
                 filesAndFolders: [
-                  { name: "Header.tsx", isFile: true },
-                  { name: "Footer.tsx", isFile: true },
-                  { name: "Sidebar.tsx", isFile: true },
+                  { name: "Header.tsx", isFile: true , id: self.crypto.randomUUID()},
+                  { name: "Footer.tsx", isFile: true , id: self.crypto.randomUUID()},
+                  { name: "Sidebar.tsx", isFile: true , id: self.crypto.randomUUID()},
                 ],
               },
               {
                 name: "shared",
                 isFile: false,
+                id: self.crypto.randomUUID(),
                 filesAndFolders: [
-                  { name: "Spinner.tsx", isFile: true },
-                  { name: "ErrorBoundary.tsx", isFile: true },
+                  { name: "Spinner.tsx", isFile: true , id: self.crypto.randomUUID()},
+                  { name: "ErrorBoundary.tsx", isFile: true , id: self.crypto.randomUUID()},
                 ],
               },
             ],
@@ -59,33 +62,34 @@ export const filesAndFolders: ExplorerNode[] = [
           {
             name: "hooks",
             isFile: false,
+            id: self.crypto.randomUUID(),
             filesAndFolders: [
-              { name: "useAuth.ts", isFile: true },
-              { name: "useFetch.ts", isFile: true },
+              { name: "useAuth.ts", isFile: true , id: self.crypto.randomUUID()},
+              { name: "useFetch.ts", isFile: true , id: self.crypto.randomUUID()},
             ],
           },
           {
             name: "utils",
             isFile: false,
+            id: self.crypto.randomUUID(),
             filesAndFolders: [
-              { name: "formatters.ts", isFile: true },
-              { name: "validators.ts", isFile: true },
-              { name: "constants.ts", isFile: true },
+              { name: "formatters.ts", isFile: true , id: self.crypto.randomUUID()},
+              { name: "validators.ts", isFile: true , id: self.crypto.randomUUID()},
+              { name: "constants.ts", isFile: true , id: self.crypto.randomUUID() },
             ],
           },
           {
             name: "styles",
             isFile: false,
+            id: self.crypto.randomUUID(),
             filesAndFolders: [
-              { name: "globals.css", isFile: true },
-              { name: "variables.css", isFile: true },
+              { name: "globals.css", isFile: true , id: self.crypto.randomUUID()},
+              { name: "variables.css", isFile: true , id: self.crypto.randomUUID()},
             ],
           },
         ],
       },
-      { name: "next.config.js", isFile: true },
-      { name: "package.json", isFile: true },
-      { name: "tsconfig.json", isFile: true },
-    ],
-  },
+      { name: "next.config.js", isFile: true , id: self.crypto.randomUUID() },
+      { name: "package.json", isFile: true , id: self.crypto.randomUUID() },
+      { name: "tsconfig.json", isFile: true , id: self.crypto.randomUUID() },
 ];

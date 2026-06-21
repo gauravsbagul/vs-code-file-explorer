@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, FileJson, FileText, File } from "lucide-react";
-import { ContextMenu } from "../components/ContextMenu";
-import { getFileIcon, VSC } from "../App";
-import type { ExplorerAction, ExplorerNode } from "../types";
+import { ChevronDown, ChevronRight, File, Folder, FolderOpen } from "lucide-react";
 import type { FocusEvent, KeyboardEvent, MouseEvent } from "react";
-import { NEW_FILE, NEW_FOLDER, RENAME } from "../constant";
+import { useEffect, useRef, useState } from "react";
+import { ContextMenu } from "../components/ContextMenu";
+import { NEW_FILE, NEW_FOLDER, RENAME, VSC } from "../constant";
+import { getFileIcon } from "../lib/helper";
+import type { ExplorerAction, ExplorerNode, FileNode } from "../types";
 
 const showInput = [NEW_FILE, NEW_FOLDER, RENAME];
 
@@ -18,13 +18,14 @@ type FileExplorerProps = {
   onAddNewFileOrFolder: (option: ExplorerAction) => void;
   depth: number;
   onNewFileOrFolderName: (option: ExplorerAction) => void;
-  onOpenFile: (file: { name: string; content?: string }) => void;
-  activeFile?: string | null;
+  onOpenFile: (file: FileNode) => void;
+  activeFile?: FileNode | null;
   onDeleteFileOrFolder: (option: ExplorerAction) => void;
+  setActiveFolder: (item: ExplorerNode) => void;
 };
 
 export const FileExplorer = ({
-  list, onAddNewFileOrFolder, depth, onNewFileOrFolderName, onOpenFile, activeFile, onDeleteFileOrFolder,
+  list, onAddNewFileOrFolder, depth, onNewFileOrFolderName, onOpenFile, activeFile, onDeleteFileOrFolder, setActiveFolder,
 }: FileExplorerProps) => {
   const [isExpanded, setIsExpanded] = useState<Record<string, boolean>>({});
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -67,11 +68,11 @@ export const FileExplorer = ({
       />
 
       {list.map((item, index) => {
-        const isActive = item.isFile && item.name === activeFile;
-        const expanded = isExpanded[item.name];
+        const isActive = item.isFile && item.id === activeFile?.id;
+        const expanded = isExpanded[item.id];
 
         return (
-          <div key={`${item.name}-${depth}-${index}`}>
+          <div key={`${item.id}-${depth}-${index}`}>
             {item.isFile ? (
               showInput.includes(item.name) ? (
                 <InlineInput
@@ -87,7 +88,7 @@ export const FileExplorer = ({
                   onClick={() => onOpenFile(item)}
                   paddingLeft={indentLeft + TWISTIE_W}
                   onContextMenu={(e) => {
-                    setIsExpanded((p) => ({ ...p, [item.name]: true }));
+                    setIsExpanded((p) => ({ ...p, [item.id]: true }));
                     handleContextMenu(e, { index, parentFolder: item.name, depth: depth + 1, id: item.id, isFile: true, item });
                   }}
                 >
@@ -111,9 +112,12 @@ export const FileExplorer = ({
                 ) : (
                   <TreeRow
                     isActive={false}
-                    onClick={() => setIsExpanded((p) => ({ ...p, [item.name]: !p[item.name] }))}
+                    onClick={() => {
+                      setIsExpanded((p) => ({ ...p, [item.id]: !p[item.id] }));
+                      setActiveFolder(item);
+                    }}
                     onContextMenu={(e) => {
-                      setIsExpanded((p) => ({ ...p, [item.name]: true }));
+                      setIsExpanded((p) => ({ ...p, [item.id]: true }));
                       handleContextMenu(e, { index, parentFolder: item.name, depth: depth + 1, id: item.id, isFile: false, item });
                     }}
                     paddingLeft={indentLeft}
@@ -138,6 +142,7 @@ export const FileExplorer = ({
                     onAddNewFileOrFolder={onAddNewFileOrFolder}
                     onNewFileOrFolderName={onNewFileOrFolderName}
                     onDeleteFileOrFolder={onDeleteFileOrFolder}
+                    setActiveFolder={setActiveFolder}
                     depth={depth + 1}
                     onOpenFile={onOpenFile}
                     activeFile={activeFile}

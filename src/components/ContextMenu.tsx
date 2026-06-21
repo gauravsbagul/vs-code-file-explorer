@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FilePlus, FolderPlus , FileText, Trash2} from "lucide-react";
-import { VSC } from "../App";
+import { VSC } from "../constant";
 import type { ContextMenuOption, ExplorerAction } from "../types";
 import { NEW_FILE, NEW_FOLDER, RENAME ,DELETE} from "../constant";
 

@@ -1,0 +1,50 @@
+
+import { X } from "lucide-react";
+import { useState } from "react";
+import { getFileIcon } from "../lib/helper";
+import "../styles.css";
+import type { OpenFile, VscColors } from "../types";
+
+export const FileTab = ({ file, isActive, onActivate, onClose, vsc }: {
+  file: OpenFile; isActive: boolean;
+  onActivate: () => void; onClose: () => void;
+  vsc: VscColors;
+}) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onActivate}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "flex", alignItems: "center", gap: 6,
+        padding: "0 10px", height: "100%", flexShrink: 0,
+        cursor: "pointer", border: "none", outline: "none", fontSize: 13,
+        whiteSpace: "nowrap", borderRight: `1px solid ${vsc.border}`,
+        borderTop: `1px solid ${isActive ? vsc.accent : "transparent"}`,
+        backgroundColor: isActive ? vsc.editorBg : (hovered ? vsc.hover : vsc.tabInactive),
+        color: isActive ? vsc.fgBright : vsc.fgMuted,
+        transition: "background-color 0.1s",
+      }}
+    >
+      {getFileIcon(file.name)}
+      <span>{file.name}</span>
+      <span
+        role="button"
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = vsc.active; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: 20, height: 20, borderRadius: 3, marginLeft: 2,
+          opacity: hovered || isActive ? 1 : 0, cursor: "pointer",
+          backgroundColor: "transparent", color: vsc.fgMuted,
+          transition: "opacity 0.1s",
+        }}
+      >
+        <X width={14} height={14} />
+      </span>
+    </button>
+  );
+}
+

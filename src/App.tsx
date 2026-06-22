@@ -1,16 +1,13 @@
-import { X } from "lucide-react";
-import { useCallback, useEffect, useId, useState } from "react";
+import { memo, useCallback, useState } from "react";
+import { EditorPane } from "./components/EditorPane";
+import { FileTab } from "./components/FileTab";
 import { VSC } from "./constant";
 import { FileExplorer } from "./container/FileExplorer";
 import { filesAndFolders } from "./data";
-import { addObjectAtDepth, deleteObject, getFileIcon, replaceObject } from "./lib/helper";
+import { addObjectAtDepth, deleteObject, replaceObject } from "./lib/helper";
 import "./styles.css";
-import type { ExplorerAction, ExplorerNode, FileNode } from "./types";
+import type { ExplorerAction, ExplorerNode, FileNode, VscColors } from "./types";
 
-
-type VscColors = typeof VSC;
-
-type OpenFile = { name: string; content?: string, id: string };
 
 export default function App() {
   const [list, setList] = useState<ExplorerNode[]>(filesAndFolders);
@@ -68,7 +65,6 @@ export default function App() {
 
   return (
     <div style={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden", backgroundColor: VSC.editorBg }}>
-
       <aside style={{
         width: 240, minWidth: 240, display: "flex", flexDirection: "column",
         backgroundColor: VSC.sidebarBg, borderRight: `1px solid ${VSC.border}`,
@@ -127,106 +123,7 @@ export default function App() {
   );
 }
 
-function FileTab({ file, isActive, onActivate, onClose, vsc }: {
-  file: OpenFile; isActive: boolean;
-  onActivate: () => void; onClose: () => void;
-  vsc: VscColors;
-}) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <button
-      onClick={onActivate}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "flex", alignItems: "center", gap: 6,
-        padding: "0 10px", height: "100%", flexShrink: 0,
-        cursor: "pointer", border: "none", outline: "none", fontSize: 13,
-        whiteSpace: "nowrap", borderRight: `1px solid ${vsc.border}`,
-        borderTop: `1px solid ${isActive ? vsc.accent : "transparent"}`,
-        backgroundColor: isActive ? vsc.editorBg : (hovered ? vsc.hover : vsc.tabInactive),
-        color: isActive ? vsc.fgBright : vsc.fgMuted,
-        transition: "background-color 0.1s",
-      }}
-    >
-      {getFileIcon(file.name)}
-      <span>{file.name}</span>
-      <span
-        role="button"
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = vsc.active; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
-        style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
-          width: 20, height: 20, borderRadius: 3, marginLeft: 2,
-          opacity: hovered || isActive ? 1 : 0, cursor: "pointer",
-          backgroundColor: "transparent", color: vsc.fgMuted,
-          transition: "opacity 0.1s",
-        }}
-      >
-        <X width={14} height={14} />
-      </span>
-    </button>
-  );
-}
-
-function EditorPane({ file, vsc }: { file: OpenFile; vsc: VscColors }) {
-  const postTextAreaId = useId();
-  const [content, setContent] = useState("");
-
-
-  useEffect(() => {
-    setContent(file.content || "");
-  }, [file.id]);
-
-  return (
-    <div key={file.id} style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{
-        height: 22, display: "flex", alignItems: "center", gap: 4,
-        paddingLeft: 12, fontSize: 13, color: vsc.fg, flexShrink: 0,
-        borderBottom: `1px solid ${vsc.border}`,
-      }}>
-        {getFileIcon(file.name)}
-        <span>{file.name}</span>
-      </div>
-      <div style={{ flex: 1, padding: "20px 28px", overflow: "auto" }}>
-        {file.content ? (
-          <div style={{
-            flex: 1, display: "flex", flexDirection: "row",
-          }}>
-            <div>
-              {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
-                <p style={{ display: "block", lineHeight: 1.6, fontSize: 14, color: vsc.fgMuted }}>{n}</p>
-              ))}
-            </div>
-            <textarea
-              id={postTextAreaId}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              style={{
-                marginLeft: 10, padding: 0,
-                width: "100%", height: "100%",
-                fontFamily: "'Cascadia Code', 'Fira Code', Consolas, monospace",
-                fontSize: 14, lineHeight: 1.6, color: vsc.fg,
-                backgroundColor: "transparent", border: "none", outline: "none",
-                resize: "none",
-              }}
-              name="postContent"
-              rows={1000}
-              cols={50}
-            />
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 100px)", gap: 8, opacity: 0.4 }}>
-            <span style={{ color: vsc.fgMuted, fontSize: 13 }}>{file.name} — no content</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({ vsc }: { vsc: VscColors }) {
+const EmptyState = memo(({ vsc }: { vsc: VscColors }) => {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 8 }}>
       <p style={{ color: vsc.fgMuted, fontSize: 13 }}>You can perform actions on files in the explorer</p>
@@ -234,4 +131,4 @@ function EmptyState({ vsc }: { vsc: VscColors }) {
       <p>Start Editing and playing around! with the editor!</p>
     </div>
   );
-}
+})

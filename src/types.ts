@@ -1,3 +1,5 @@
+import { VSC } from "./constant";
+
 export type FileNode = {
   name: string;
   isFile: true;
@@ -32,3 +34,8 @@ export type ContextMenuOption = {
   isFile?: boolean;
   icon: React.ReactNode;
 };
+
+
+export type VscColors = typeof VSC;
+
+export type OpenFile = { name: string; content?: string, id: string };

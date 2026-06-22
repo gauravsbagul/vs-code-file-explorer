@@ -3,6 +3,10 @@ const NEW_FOLDER = "New folder";
 const RENAME = "Rename";
 const DELETE = "Delete";
 
+const CLOSE_ALL = "Close All";
+const CLOSE_OTHERS = "Close Others";
+
+
 const VSC = {
   editorBg: "#1e1e1e",
   sidebarBg: "#252526",
@@ -18,5 +22,5 @@ const VSC = {
 } as const;
 
 
-export { NEW_FILE, NEW_FOLDER, RENAME, DELETE, VSC};
+export { NEW_FILE, NEW_FOLDER, RENAME, DELETE, CLOSE_ALL, CLOSE_OTHERS, VSC};
 

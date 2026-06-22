@@ -1,3 +1,4 @@
+import { PanelLeft, PanelRight } from "lucide-react";
 import { memo, useCallback, useState } from "react";
 import { EditorPane } from "./components/EditorPane";
 import { FileTab } from "./components/FileTab";
@@ -14,6 +15,8 @@ export default function App() {
   const [openFiles, setOpenFiles] = useState<FileNode[]>([]);
   const [activeFile, setActiveFile] = useState<FileNode | null>(null);
   const [activeFolder, setActiveFolder] = useState<ExplorerNode | null>(null);
+  const [isPaneLeft, setIsPaneLeft] = useState<boolean>(true);
+
 
   const onAddNewFileOrFolder = useCallback((option: ExplorerAction) => {
     const { parentFolder, name = "", depth, isFile } = option;
@@ -63,40 +66,46 @@ export default function App() {
 
   const currentFile = openFiles.find((f) => f.id === activeFile?.id);
 
+  const sideBar = <aside style={{
+    width: 240, minWidth: 240, display: "flex", flexDirection: "column",
+    backgroundColor: VSC.sidebarBg, borderRight: `1px solid ${VSC.border}`,
+    overflow: "hidden",
+  }}>
+    <div style={{
+      height: 35, display: "flex", alignItems: "center", paddingLeft: 12, flexShrink: 0,
+      fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
+      color: VSC.fgHeader, borderBottom: `1px solid ${VSC.border}`, userSelect: "none",
+      justifyContent: "space-between", gap: 4, paddingRight: 8,
+    }}>
+      Explorer
+
+      {isPaneLeft ? <PanelLeft onClick={() => setIsPaneLeft(false)} /> : <PanelRight onClick={() => setIsPaneLeft(true)} />}
+    </div>
+
+    <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+      <FileExplorer
+        list={list}
+        onAddNewFileOrFolder={onAddNewFileOrFolder}
+        onNewFileOrFolderName={onNewFileOrFolderName}
+        onDeleteFileOrFolder={onDeleteFileOrFolder}
+        setActiveFolder={setActiveFolder}
+        depth={0}
+        onOpenFile={onOpenFile}
+        activeFile={activeFile}
+      />
+    </div>
+  </aside>
+
   return (
     <div style={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden", backgroundColor: VSC.editorBg }}>
-      <aside style={{
-        width: 240, minWidth: 240, display: "flex", flexDirection: "column",
-        backgroundColor: VSC.sidebarBg, borderRight: `1px solid ${VSC.border}`,
-        overflow: "hidden",
-      }}>
-        <div style={{
-          height: 35, display: "flex", alignItems: "center", paddingLeft: 12, flexShrink: 0,
-          fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase",
-          color: VSC.fgHeader, borderBottom: `1px solid ${VSC.border}`, userSelect: "none",
-        }}>
-          Explorer
-        </div>
-        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-          <FileExplorer
-            list={list}
-            onAddNewFileOrFolder={onAddNewFileOrFolder}
-            onNewFileOrFolderName={onNewFileOrFolderName}
-            onDeleteFileOrFolder={onDeleteFileOrFolder}
-            setActiveFolder={setActiveFolder}
-            depth={0}
-            onOpenFile={onOpenFile}
-            activeFile={activeFile}
-          />
-        </div>
-      </aside>
-
+      {isPaneLeft && sideBar}
       <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: VSC.editorBg }}>
         {openFiles.length > 0 && (
           <div style={{
             height: 35, display: "flex", alignItems: "stretch", flexShrink: 0,
             backgroundColor: VSC.sidebarBg, borderBottom: `1px solid ${VSC.border}`,
             overflowX: "auto", overflowY: "hidden",
+            flexDirection: isPaneLeft ? "row" : "row-reverse",
           }}>
             {openFiles.map((file) => (
               <FileTab
@@ -105,6 +114,10 @@ export default function App() {
                 isActive={file.id === activeFile?.id}
                 onActivate={() => setActiveFile(file)}
                 onClose={() => onCloseFile(file.id)}
+                onCloseAll={() => {
+                  setOpenFiles([]);
+                  setActiveFile(null);
+                }}
                 vsc={VSC}
               />
             ))}
@@ -119,6 +132,7 @@ export default function App() {
           )}
         </div>
       </main>
+      {!isPaneLeft && sideBar}
     </div>
   );
 }

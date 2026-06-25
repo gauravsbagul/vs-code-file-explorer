@@ -1,29 +1,47 @@
-import { CopyX, XLineTop } from "lucide-react";
+import { Copy, XLineTop, SquareX } from "lucide-react";
 import { useState } from "react";
-import { CLOSE_ALL, CLOSE_OTHERS, VSC } from "../constant";
+import { CLOSE_ALL, CLOSE_OTHERS, COPY_PATH, VSC } from "../constant";
 import type { ContextMenuOption, ExplorerAction, OpenFile } from "../types";
-
 type ContextMenuProps = {
   menuVisible: boolean;
   fileOption?: OpenFile | null;
   onCloseAll: () => void;
-  onCloseOthers: () => void;
+  onCloseOthers: (id: string) => void;
+  copyFilePath: (id: string) => void;
   position: { x: number; y: number };
+  setMenuVisible: (visible: boolean) => void;
 };
 
 const MENU_OPTIONS: ContextMenuOption[] = [
-  { name: CLOSE_ALL, icon: <CopyX style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
+  { name: CLOSE_ALL, icon: <SquareX style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
   { name: CLOSE_OTHERS, icon: <XLineTop style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
+  { name: COPY_PATH, icon: <Copy style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.8 }} /> },
+
 ];
 
-export const ContextmenuFileTab = ({ menuVisible, fileOption, onCloseAll, onCloseOthers, position }: ContextMenuProps) => {
+export const ContextmenuFileTab = ({ menuVisible, fileOption, onCloseAll, onCloseOthers, position, setMenuVisible, copyFilePath }: ContextMenuProps) => {
   if (!menuVisible) return null;
 
   const onOptionClick = (item: ContextMenuOption) => {
-    if (item.name === CLOSE_ALL) {
-      onCloseAll();
-    } else if (item.name === CLOSE_OTHERS) {
-      onCloseOthers();
+    switch (item.name) {
+      case COPY_PATH:
+        if (fileOption) {
+          copyFilePath(fileOption.id);
+          setMenuVisible(false);
+        }
+        break;
+      case CLOSE_ALL:
+        onCloseAll();
+        setMenuVisible(false);
+        break;
+      case CLOSE_OTHERS:
+        if (fileOption) {
+          onCloseOthers(fileOption.id);
+          setMenuVisible(false);
+        }
+        break;
+      default:
+        break;
     }
   }
 

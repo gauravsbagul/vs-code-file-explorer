@@ -75,3 +75,15 @@ export const getFileIcon = (name: string, size = 16) => {
         default: return <File style={{ ...s, color: "#c5c5c5" }} />;
     }
 }
+
+export const getFilePath = (list: ExplorerNode[], id: string, currentPath = ""): string | null => {
+    for (const node of list) {
+        const newPath = currentPath ? `${currentPath}/${node.name}` : node.name;
+        if (node.id === id) return newPath;
+        if (isFolderNode(node)) {
+            const result = getFilePath(node.filesAndFolders, id, newPath);
+            if (result) return result;
+        }
+    }
+    return null;
+}

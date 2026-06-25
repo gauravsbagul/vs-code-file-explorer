@@ -7,10 +7,12 @@ import "../styles.css";
 import type { OpenFile, VscColors } from "../types";
 import { ContextmenuFileTab } from "./ContextmenuFileTab";
 
-export const FileTab = ({ file, isActive, onActivate, onClose, vsc, onCloseAll }: {
+export const FileTab = ({ file, isActive, onActivate, onClose, vsc, onCloseAll, onCloseOthers, copyFilePath }: {
   file: OpenFile; isActive: boolean;
   onActivate: () => void; onClose: () => void;
   onCloseAll: () => void;
+  onCloseOthers: (id: string) => void;
+  copyFilePath: (id: string) => void;
   vsc: VscColors;
 }) => {
   const [hovered, setHovered] = useState(false);
@@ -30,9 +32,11 @@ export const FileTab = ({ file, isActive, onActivate, onClose, vsc, onCloseAll }
     <>
       <ContextmenuFileTab
         onCloseAll={onCloseAll}
-        onCloseOthers={() => { }}
+        onCloseOthers={onCloseOthers}
+        copyFilePath={copyFilePath}
         position={position}
         menuVisible={menuVisible}
+        setMenuVisible={setMenuVisible}
         fileOption={fileOption} />
       <button
         onClick={onActivate}

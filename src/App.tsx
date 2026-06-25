@@ -5,7 +5,7 @@ import { FileTab } from "./components/FileTab";
 import { VSC } from "./constant";
 import { FileExplorer } from "./container/FileExplorer";
 import { filesAndFolders } from "./data";
-import { addObjectAtDepth, deleteObject, replaceObject } from "./lib/helper";
+import { addObjectAtDepth, deleteObject, getFilePath, replaceObject } from "./lib/helper";
 import "./styles.css";
 import type { ExplorerAction, ExplorerNode, FileNode, VscColors } from "./types";
 
@@ -105,6 +105,21 @@ export default function App() {
     });
   }, [activeFile]);
 
+
+  const onCloseAll = useCallback(() => {
+    setOpenFiles([]);
+    setActiveFile(null);
+  }, []);
+
+  const onCloseOthers = useCallback((id: string) => {
+    setOpenFiles((prev) => prev.filter((f) => f.id === id));
+  }, []);
+
+  const copyFilePath = useCallback((id: string) => {
+    const filePath = getFilePath(list, id);
+    navigator.clipboard.writeText(filePath || "");
+  }, []);
+
   const currentFile = openFiles.find((f) => f.id === activeFile?.id);
 
 
@@ -151,7 +166,6 @@ export default function App() {
         depth={0}
         onOpenFile={onOpenFile}
         activeFile={activeFile}
-
       />
     </div>
   </aside>
@@ -175,10 +189,9 @@ export default function App() {
                 isActive={file.id === activeFile?.id}
                 onActivate={() => setActiveFile(file)}
                 onClose={() => onCloseFile(file.id)}
-                onCloseAll={() => {
-                  setOpenFiles([]);
-                  setActiveFile(null);
-                }}
+                onCloseAll={onCloseAll}
+                onCloseOthers={onCloseOthers}
+                copyFilePath={copyFilePath}
                 vsc={VSC}
               />
             ))}

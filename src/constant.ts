@@ -5,6 +5,7 @@ const DELETE = "Delete";
 
 const CLOSE_ALL = "Close All";
 const CLOSE_OTHERS = "Close Others";
+const COPY_PATH = "Copy Path";
 
 
 const VSC = {
@@ -22,5 +23,5 @@ const VSC = {
 } as const;
 
 
-export { NEW_FILE, NEW_FOLDER, RENAME, DELETE, CLOSE_ALL, CLOSE_OTHERS, VSC};
+export { NEW_FILE, NEW_FOLDER, RENAME, DELETE, CLOSE_ALL, CLOSE_OTHERS, VSC, COPY_PATH };
 

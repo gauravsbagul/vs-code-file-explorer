@@ -192,7 +192,6 @@ export default function App() {
                 onCloseAll={onCloseAll}
                 onCloseOthers={onCloseOthers}
                 copyFilePath={copyFilePath}
-                vsc={VSC}
               />
             ))}
           </div>
@@ -200,9 +199,9 @@ export default function App() {
 
         <div style={{ flex: 1, overflow: "auto" }}>
           {currentFile ? (
-            <EditorPane file={currentFile} vsc={VSC} />
+            <EditorPane file={currentFile} />
           ) : (
-            <EmptyState vsc={VSC} />
+            <EmptyState />
           )}
         </div>
       </main>
@@ -211,11 +210,11 @@ export default function App() {
   );
 }
 
-const EmptyState = memo(({ vsc }: { vsc: VscColors }) => {
+const EmptyState = memo(() => {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 8 }}>
-      <p style={{ color: vsc.fgMuted, fontSize: 13 }}>You can perform actions on files in the explorer</p>
-      <p style={{ color: vsc.fgMuted, fontSize: 11, opacity: 0.5 }}>Right-click a folder in the explorer to create files</p>
+      <p style={{ color: VSC.fgMuted, fontSize: 13 }}>You can perform actions on files in the explorer</p>
+      <p style={{ color: VSC.fgMuted, fontSize: 11, opacity: 0.5 }}>Right-click a folder in the explorer to create files</p>
       <p>Start Editing and playing around! with the editor!</p>
     </div>
   );

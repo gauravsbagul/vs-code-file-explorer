@@ -6,14 +6,14 @@ import { getFileIcon } from "../lib/helper";
 import "../styles.css";
 import type { OpenFile, VscColors } from "../types";
 import { ContextmenuFileTab } from "./ContextmenuFileTab";
+import { VSC } from "../constant";
 
-export const FileTab = ({ file, isActive, onActivate, onClose, vsc, onCloseAll, onCloseOthers, copyFilePath }: {
+export const FileTab = ({ file, isActive, onActivate, onClose, onCloseAll, onCloseOthers, copyFilePath }: {
   file: OpenFile; isActive: boolean;
   onActivate: () => void; onClose: () => void;
   onCloseAll: () => void;
   onCloseOthers: (id: string) => void;
   copyFilePath: (id: string) => void;
-  vsc: VscColors;
 }) => {
   const [hovered, setHovered] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -49,10 +49,10 @@ export const FileTab = ({ file, isActive, onActivate, onClose, vsc, onCloseAll, 
           display: "flex", alignItems: "center", gap: 6,
           padding: "0 10px", height: "100%", flexShrink: 0,
           cursor: "pointer", border: "none", outline: "none", fontSize: 13,
-          whiteSpace: "nowrap", borderRight: `1px solid ${vsc.border}`,
-          borderTop: `1px solid ${isActive ? vsc.accent : "transparent"}`,
-          backgroundColor: isActive ? vsc.editorBg : (hovered ? vsc.hover : vsc.tabInactive),
-          color: isActive ? vsc.fgBright : vsc.fgMuted,
+          whiteSpace: "nowrap", borderRight: `1px solid ${VSC.border}`,
+          borderTop: `1px solid ${isActive ? VSC.accent : "transparent"}`,
+          backgroundColor: isActive ? VSC.editorBg : (hovered ? VSC.hover : VSC.tabInactive),
+          color: isActive ? VSC.fgBright : VSC.fgMuted,
           transition: "background-color 0.1s",
         }}
       >
@@ -61,13 +61,13 @@ export const FileTab = ({ file, isActive, onActivate, onClose, vsc, onCloseAll, 
         <span
           role="button"
           onClick={(e) => { e.stopPropagation(); onClose(); }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = vsc.active; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = VSC.active; }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center",
             width: 20, height: 20, borderRadius: 3, marginLeft: 2,
             opacity: hovered || isActive ? 1 : 0, cursor: "pointer",
-            backgroundColor: "transparent", color: vsc.fgMuted,
+            backgroundColor: "transparent", color: VSC.fgMuted,
             transition: "opacity 0.1s",
           }}
         >

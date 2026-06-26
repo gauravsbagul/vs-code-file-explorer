@@ -1,53 +1,54 @@
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, } from "react";
+import Editor from '@monaco-editor/react';
+import { VSC } from '../constant'
+
 import { getFileIcon } from "../lib/helper";
 import "../styles.css";
-import { OpenFile, VscColors } from "../types";
+import { OpenFile, } from "../types";
 
-export const EditorPane = ({ file, vsc }: { file?: OpenFile; vsc: VscColors }) => {
+export const EditorPane = ({ file, }: { file?: OpenFile; }) => {
   const postTextAreaId = useId();
   const [content, setContent] = useState("");
+
+  const [language, setLanguage] = useState('');
 
 
   useEffect(() => {
     setContent(file?.content || "");
+    setLanguage(file?.name?.split('.')[1] || '');
   }, [file?.id]);
+
+  const handleEditorDidMount = (editor: any, monaco: any) => {
+
+  }
+
+
 
   return (
     <div key={file?.id} style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <div style={{
         height: 22, display: "flex", alignItems: "center", gap: 4,
-        paddingLeft: 12, fontSize: 13, color: vsc.fg, flexShrink: 0,
-        borderBottom: `1px solid ${vsc.border}`,
+        paddingLeft: 12, fontSize: 13, color: VSC.fg, flexShrink: 0,
+        borderBottom: `1px solid ${VSC.border}`,
       }}>
         {getFileIcon(file?.name || '')}
         <span>{file?.name}</span>
       </div>
-      <div style={{ flex: 1, padding: "20px 28px", overflow: "auto" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "row" }}>
-          <div>
-            {Array.from({ length: 50 }, (_, i) => i + 1).map((n) => (
-              <p key={n} style={{ display: "block", lineHeight: 1.6, fontSize: 14, color: vsc.fgMuted }}>{n}</p>
-            ))}
-          </div>
-          <textarea
-            id={postTextAreaId}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            style={{
-              marginLeft: 10, padding: 0,
-              width: "100%", height: "100%",
-              fontFamily: "'Cascadia Code', 'Fira Code', Consolas, monospace",
-              fontSize: 14, lineHeight: 1.6, color: vsc.fg,
-              backgroundColor: "transparent", border: "none", outline: "none",
-              resize: "none",
-            }}
-            name="postContent"
-            rows={1000}
-            cols={50}
-          />
-        </div>
-      </div>
+      <Editor
+        height={'100vh'}
+        theme="vs-dark"
+        language={language}
+        value={content}
+        onChange={(newValue) => setContent(newValue || '')}
+        onMount={handleEditorDidMount}
+        options={{
+          minimap: { enabled: false },
+          fontSize: 14,
+          automaticLayout: true,
+        }}
+        className='editor'
+      />
     </div>
   );
 }

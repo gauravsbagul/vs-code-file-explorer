@@ -5,7 +5,7 @@ import { FileTab } from "./components/FileTab";
 import { VSC } from "./constant";
 import { FileExplorer } from "./container/FileExplorer";
 import { filesAndFolders } from "./data";
-import { addObjectAtDepth, deleteObject, getFilePath, replaceObject } from "./lib/helper";
+import { addObjectAtDepth, deleteObject, findNodeByPath, getAncestorIds, getFilePath, replaceObject } from "./lib/helper";
 import "./styles.css";
 import type { ExplorerAction, ExplorerNode, FileNode, VscColors } from "./types";
 
@@ -16,6 +16,8 @@ export default function App() {
   const [activeFile, setActiveFile] = useState<FileNode | null>(null);
   const [activeFolder, setActiveFolder] = useState<ExplorerNode | null>(null);
   const [isPaneLeft, setIsPaneLeft] = useState<boolean>(true);
+  // Folder IDs that should be auto-expanded (used when restoring from URL)
+  const [defaultExpandedIds, setDefaultExpandedIds] = useState<Set<string>>(new Set());
 
 
   const [drawerWidth, setDrawerWidth] = useState(250);
@@ -120,6 +122,43 @@ export default function App() {
     navigator.clipboard.writeText(filePath || "");
   }, []);
 
+  // ── URL ↔ active file sync ──────────────────────────────────────────────
+
+  /** Push the active file's path to the URL whenever it changes */
+  useEffect(() => {
+    const path = activeFile ? getFilePath(list, activeFile.id) : null;
+    const url = path ? `/${path}` : "/";
+    if (window.location.pathname !== url) {
+      window.history.pushState({ fileId: activeFile?.id ?? null }, "", url);
+    }
+  }, [activeFile]);
+
+  /** Restore active file from URL on initial mount */
+  useEffect(() => {
+    const raw = window.location.pathname.slice(1); // strip leading '/'
+    if (!raw) return;
+    const node = findNodeByPath(list, raw);
+    if (!node) return;
+    onOpenFile(node);
+    const ancestors = getAncestorIds(list, node.id);
+    if (ancestors?.length) setDefaultExpandedIds(new Set(ancestors));
+  }, []); // intentionally run only once on mount
+
+  /** Handle browser back / forward */
+  useEffect(() => {
+    const handlePopState = () => {
+      const raw = window.location.pathname.slice(1);
+      if (!raw) { setActiveFile(null); return; }
+      const node = findNodeByPath(list, raw);
+      if (!node) return;
+      onOpenFile(node);
+      const ancestors = getAncestorIds(list, node.id);
+      if (ancestors?.length) setDefaultExpandedIds(new Set(ancestors));
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [list, onOpenFile]);
+
   const currentFile = openFiles.find((f) => f.id === activeFile?.id);
 
 
@@ -166,6 +205,7 @@ export default function App() {
         depth={0}
         onOpenFile={onOpenFile}
         activeFile={activeFile}
+        defaultExpanded={defaultExpandedIds}
       />
     </div>
   </aside>

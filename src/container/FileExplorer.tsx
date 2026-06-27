@@ -22,12 +22,29 @@ type FileExplorerProps = {
   activeFile?: FileNode | null;
   onDeleteFileOrFolder: (option: ExplorerAction) => void;
   setActiveFolder: (item: ExplorerNode) => void;
+  /** Folder IDs that should be forced-open (e.g. when restoring from URL) */
+  defaultExpanded?: Set<string>;
 };
 
 export const FileExplorer = ({
-  list, onAddNewFileOrFolder, depth, onNewFileOrFolderName, onOpenFile, activeFile, onDeleteFileOrFolder, setActiveFolder,
+  list, onAddNewFileOrFolder, depth, onNewFileOrFolderName, onOpenFile, activeFile, onDeleteFileOrFolder, setActiveFolder, defaultExpanded,
 }: FileExplorerProps) => {
-  const [isExpanded, setIsExpanded] = useState<Record<string, boolean>>({});
+  const [isExpanded, setIsExpanded] = useState<Record<string, boolean>>(() => {
+    if (!defaultExpanded?.size) return {};
+    const init: Record<string, boolean> = {};
+    list.forEach((item) => { if (!item.isFile && defaultExpanded.has(item.id)) init[item.id] = true; });
+    return init;
+  });
+
+  // When defaultExpanded changes (URL restore after mount), expand those folders
+  useEffect(() => {
+    if (!defaultExpanded?.size) return;
+    setIsExpanded((prev) => {
+      const next = { ...prev };
+      list.forEach((item) => { if (!item.isFile && defaultExpanded.has(item.id)) next[item.id] = true; });
+      return next;
+    });
+  }, [defaultExpanded, list]);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [menuVisible, setMenuVisible] = useState(false);
   const [option, setOption] = useState<ExplorerAction | null>(null);
@@ -146,6 +163,7 @@ export const FileExplorer = ({
                     depth={depth + 1}
                     onOpenFile={onOpenFile}
                     activeFile={activeFile}
+                    defaultExpanded={defaultExpanded}
                   />
                 ) : null}
               </>

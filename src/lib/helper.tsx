@@ -87,3 +87,35 @@ export const getFilePath = (list: ExplorerNode[], id: string, currentPath = ""):
     }
     return null;
 }
+
+/** Find a FileNode by its slash-separated path (e.g. "my-app/src/pages/index.tsx") */
+export const findNodeByPath = (list: ExplorerNode[], path: string): import("../types").FileNode | null => {
+    const parts = path.split("/").filter(Boolean);
+    let current: ExplorerNode[] = list;
+
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        const node = current.find((n) => n.name === part);
+        if (!node) return null;
+        if (i === parts.length - 1) return node.isFile ? node : null;
+        if (!node.isFile) { current = node.filesAndFolders; continue; }
+        return null;
+    }
+    return null;
+};
+
+/** Return the IDs of all ancestor folder nodes for a given node ID */
+export const getAncestorIds = (
+    list: ExplorerNode[],
+    targetId: string,
+    ancestors: string[] = []
+): string[] | null => {
+    for (const node of list) {
+        if (node.id === targetId) return ancestors;
+        if (isFolderNode(node)) {
+            const result = getAncestorIds(node.filesAndFolders, targetId, [...ancestors, node.id]);
+            if (result) return result;
+        }
+    }
+    return null;
+};

@@ -317,7 +317,15 @@ export const filesAndFolders: ExplorerNode[] = [
       },
     ],
   },
-  { name: "next.config.js", isFile: true, id: self.crypto.randomUUID() },
+  { name: "next.config.ts", isFile: true, id: self.crypto.randomUUID(), content:`import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  reactCompiler: true,
+  serverExternalPackages: ["pdfjs-dist"],
+};
+
+export default nextConfig;
+` },
   {
     name: "package.json", isFile: true, id: self.crypto.randomUUID(), content: `{
       "name": "react",
@@ -358,5 +366,28 @@ export const filesAndFolders: ExplorerNode[] = [
       ]
     }
   `},
-  { name: "tsconfig.json", isFile: true, id: self.crypto.randomUUID() },
+  { name: "tsconfig.json", isFile: true, id: self.crypto.randomUUID(), content: `{
+    "compilerOptions": {
+      "target": "es2017",
+      "lib": ["dom", "dom.iterable", "esnext"],
+      "baseUrl": ".",
+      "allowJs": false,
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": true,
+      "module": "esnext",
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": true,
+      "jsx": "react-jsx",
+      "paths": {
+        "@/*": ["./*"]
+      }
+    },
+    "include": ["src"]
+  }` },
 ];

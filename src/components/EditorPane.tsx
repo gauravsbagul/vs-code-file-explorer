@@ -20,10 +20,7 @@ export const EditorPane = ({ file, }: { file?: OpenFile; }) => {
   }, [file?.id]);
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
-
   }
-
-
 
   return (
     <div key={file?.id} style={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -43,9 +40,12 @@ export const EditorPane = ({ file, }: { file?: OpenFile; }) => {
         onChange={(newValue) => setContent(newValue || '')}
         onMount={handleEditorDidMount}
         options={{
-          minimap: { enabled: false },
+          minimap: { enabled: true },
           fontSize: 14,
           automaticLayout: true,
+          autoDetectHighContrast: true,
+          detectIndentation: true,
+          wordWrap: 'on'
         }}
         className='editor'
       />
